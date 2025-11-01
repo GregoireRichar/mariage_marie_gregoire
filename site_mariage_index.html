@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Notre Mariage — 6 juin 2026</title>
+  <meta name="description" content="Toutes les informations pour notre mariage : date, lieu, accès, hébergements, programme, RSVP et idées à faire dans la région." />
+  <meta property="og:title" content="Notre Mariage — 6 juin 2026" />
+  <meta property="og:description" content="Lieu, accès, hébergements, programme, RSVP et idées à faire dans la région." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/assets/images/og-image.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    :root{
+      --bg:#fffdf9;         /* fond crème */
+      --text:#2e2a24;       /* texte brun doux */
+      --primary:#b4d3c9;    /* vert pastel */
+      --secondary:#f7c8d0;  /* rose pastel */
+      --accent:#f3e5ab;     /* jaune pastel */
+      --muted:#e9edf1;      /* gris bleuté */
+      /* Fonds alternés pastels (très doux) */
+      --pastel-a:#fbf4f6;   /* rose très pâle */
+      --pastel-b:#f3f9f7;   /* vert d'eau pâle */
+      --pastel-c:#f9f8ef;   /* crème très clair */
+      --pastel-d:#f4f6fb;   /* bleu lavande pâle */
+      --radius:16px;
+      --shadow:0 10px 30px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.6}
+    h1,h2,h3{font-family:"Cormorant Garamond",serif;line-height:1.2}
+
+    /* Nav */
+    nav.site{position:sticky;top:0;z-index:50;background:rgba(255,253,249,.85);backdrop-filter:saturate(140%) blur(6px);border-bottom:1px solid #eee}
+    nav .wrap{max-width:1100px;margin:auto;display:flex;gap:16px;align-items:center;justify-content:space-between;padding:10px 16px}
+    .brand{font-weight:600}
+    .menu{display:flex;flex-wrap:wrap;gap:10px}
+    .menu a{padding:8px 12px;border-radius:999px;text-decoration:none;color:var(--text)}
+    .menu a.active,.menu a:hover{background:var(--primary)}
+    .cta{background:var(--secondary)}
+
+    /* Hero */
+    .hero{position:relative;min-height:68vh;display:grid;place-items:center;text-align:center;color:#1b1b1b}
+    .hero::before{content:"";position:absolute;inset:0;background:var(--hero-img, url('assets/images/hero.png')) center/cover no-repeat;filter:grayscale(.1) contrast(1.05);transform:translateY(var(--hero-offset,0px));will-change:transform;}
+    .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,253,249,.95))}
+    .hero .inner{position:relative;padding:60px 16px}
+    .date-pill{display:inline-block;background:var(--accent);padding:6px 12px;border-radius:999px;margin-bottom:12px}
+    .title{font-size:clamp(36px,6vw,64px);margin:0 0 8px}
+    .subtitle{font-size:18px;margin:0 0 16px}
+    .countdown{font-variant-numeric:tabular-nums;font-size:20px;padding:10px 14px;background:#fff;border-radius:999px;display:inline-block;border:1px solid #eee;box-shadow:var(--shadow)}
+
+    /* Sections */
+    section{padding:64px 16px;background:var(--bg);} 
+    section.alt-a{background:var(--pastel-a)}
+    section.alt-b{background:var(--pastel-b)}
+    section.alt-c{background:var(--pastel-c)}
+    section.alt-d{background:var(--pastel-d)}
+    .wrap{max-width:1100px;margin:auto}
+    .card{background:#fff;border:1px solid #eee;border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+    .grid{display:grid;gap:16px}
+    .grid.cols-2{grid-template-columns:1fr;}
+    .grid.cols-3{grid-template-columns:1fr;}
+    @media(min-width:900px){
+      .grid.cols-2{grid-template-columns:1fr 1fr}
+      .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+    }
+    ul.clean{list-style:none;padding-left:0}
+    ul.clean li{margin:8px 0}
+    .btn{display:inline-block;background:var(--primary);padding:10px 14px;border-radius:10px;border:1px solid #dfe7e3;text-decoration:none;color:inherit}
+
+    /* Map */
+    #map{height:360px;border-radius:var(--radius);overflow:hidden;border:1px solid #eee}
+
+    footer{padding:40px 16px;border-top:1px solid #eee;background:#fff}
+    small.muted{color:#666}
+  </style>
+</head>
+<body>
+  <nav class="site" aria-label="Navigation principale">
+    <div class="wrap">
+      <div class="brand">Notre mariage • 06/06/2026</div>
+      <div class="menu" role="menubar">
+        <a href="#programme">Programme</a>
+        <a href="#lieu">Lieu & Accès</a>
+        <a href="#hebergements">Hébergements</a>
+        <a href="#region">Que faire ?</a>
+        <a href="#rsvp" class="cta">RSVP</a>
+        <a href="#cadeaux">Cagnotte</a>
+        <a href="#faq">FAQ</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero" id="top" role="banner">
+    <div class="inner">
+      <div class="date-pill" aria-label="Date du mariage">Samedi 6 juin 2026 • 15h</div>
+      <h1 class="title">Notre mariage</h1>
+      <p class="subtitle">Église & Château — Savigny‑lès‑Beaune, Bourgogne</p>
+      <div class="countdown" id="countdown" aria-live="polite">Chargement…</div>
+      <div style="margin-top:16px">
+        <a class="btn" href="#rsvp">Confirmer ma venue (RSVP)</a>
+      </div>
+    </div>
+  </header>
+
+  <section id="programme" class="alt-a" aria-labelledby="h-programme">
+    <div class="wrap grid cols-2">
+      <div>
+        <h2 id="h-programme">Programme</h2>
+        <ul>
+          <li><strong>15:00</strong> — Cérémonie à l'église de Savigny‑lès‑Beaune</li>
+          <li><strong>17:00</strong> — Vin d'honneur au château</li>
+          <li><strong>20:00</strong> — Dîner & soirée</li>
+          <li><strong>11:00 (lendemain)</strong> — Brunch (lieu à préciser)</li>
+        </ul>
+      </div>
+      <aside class="card">
+        <h3>Ajouter au calendrier</h3>
+        <p>
+          <a class="btn" id="ics-link" download>📅 Télécharger l’invitation (.ics)</a>
+        </p>
+        <p class="small">Astuce : ajoutez aussi l'adresse du lieu dans la note de l'événement.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section id="lieu" class="alt-b" aria-labelledby="h-lieu">
+    <div class="wrap grid cols-2">
+      <div>
+        <h2 id="h-lieu">Lieu & Accès</h2>
+        <p><strong>Église & Château de Savigny‑lès‑Beaune</strong> — Bourgogne.
+        <br>Coordonnées église : <code>47.062702543328705, 4.819991274853157</code></p>
+        <div id="map" role="img" aria-label="Carte du lieu"></div>
+      </div>
+      <div class="card">
+        <h3>Venir</h3>
+        <ul class="clean">
+          <li>🚗 <a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=47.062702543328705,4.819991274853157">Itinéraire Google Maps</a></li>
+          <li>🚆 Depuis Paris/Lyon : trains vers <em>Beaune</em>, puis taxi/navette (≈10 min). Consultez <a target="_blank" rel="noopener" href="https://www.sncf-connect.com/">SNCF Connect</a>.</li>
+          <li>🅿️ Parkings au village et au château (places limitées près de l’église).</li>
+          <li>💬 <a href="#rsvp">Besoin d’une navette ? Indiquez‑le dans le formulaire RSVP.</a></li>
+        </ul>
+        <h3 style="margin-top:16px">Communauté WhatsApp</h3>
+        <p><a class="btn" href="https://chat.whatsapp.com/LepdhkSOc6F669FmN8bxQK?mode=wwt" target="_blank" rel="noopener" aria-label="Rejoindre la communauté WhatsApp">Rejoindre la communauté WhatsApp</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="hebergements" class="alt-c" aria-labelledby="h-hebergements">
+    <div class="wrap">
+      <h2 id="h-hebergements">Hébergements proches</h2>
+      <div id="lodgings" class="grid cols-3"></div>
+      <p class="small">💡 Astuce : nous mettrons à jour cette liste au fil des confirmations. Vous pouvez aussi chercher sur <a class="btn" target="_blank" rel="noopener" href="https://www.booking.com/search.html?ss=Savigny-l%C3%A8s-Beaune">Booking</a> ou <a class="btn" target="_blank" rel="noopener" href="https://www.airbnb.com/s/Savigny-l%C3%A8s-Beaune--France/homes">Airbnb</a>.</p>
+    </div>
+  </section>
+
+  <section id="region" class="alt-d" aria-labelledby="h-region">
+    <div class="wrap">
+      <h2 id="h-region">Que faire dans la région</h2>
+      <div class="grid cols-3">
+        <div class="card">
+          <h3>Hospices de Beaune</h3>
+          <p>Visite du célèbre Hôtel‑Dieu et de ses toits polychromes.</p>
+        </div>
+        <div class="card">
+          <h3>Route des Grands Crus</h3>
+          <p>Balade à travers les vignobles, dégustations chez les domaines.</p>
+        </div>
+        <div class="card">
+          <h3>Château de Savigny‑lès‑Beaune</h3>
+          <p>Parc et collections insolites (avions, motos, tracteurs).</p>
+        </div>
+        <div class="card">
+          <h3>Beaune intra‑muros</h3>
+          <p>Remparts, caves, restaurants bourguignons, marché.</p>
+        </div>
+        <div class="card">
+          <h3>Voie des Vignes</h3>
+          <p>Itinéraires à vélo entre Beaune, Pommard, Meursault…</p>
+        </div>
+        <div class="card">
+          <h3>Abbaye de Cîteaux</h3>
+          <p>Patrimoine cistercien et fromagerie (un peu plus au sud).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="rsvp" class="alt-a" aria-labelledby="h-rsvp">
+    <div class="wrap grid cols-2">
+      <div>
+        <h2 id="h-rsvp">RSVP</h2>
+        <p>Merci de confirmer votre présence et de nous signaler vos besoins (enfants, allergies, transport…).</p>
+        <form class="card" name="rsvp" method="POST" data-netlify="true">
+          <input type="hidden" name="form-name" value="rsvp" />
+          <div class="grid cols-2">
+            <label>Nom et prénom<br><input required name="name" type="text"/></label>
+            <label>Email<br><input required name="email" type="email"/></label>
+          </div>
+          <div class="grid cols-2">
+            <label>Nombre d'adultes<br><input name="adults" type="number" min="1" value="1"/></label>
+            <label>Enfants<br><input name="kids" type="number" min="0" value="0"/></label>
+          </div>
+          <label>Régimes / allergies<br><input name="diet" type="text" placeholder="Végétarien, sans gluten…"/></label>
+          <label>Besoin d'une navette ?<br>
+            <select name="shuttle"><option>Non</option><option>Oui</option><option>Peut‑être</option></select>
+          </label>
+          <label>Message<br><textarea name="msg" rows="4"></textarea></label>
+          <button class="btn" type="submit">Envoyer ma réponse</button>
+        </form>
+      </div>
+      <aside class="card">
+        <h3>Informations pratiques</h3>
+        <ul>
+          <li>Tenue : chic confortable (pastels bienvenus ✨)</li>
+          <li>Village viticole : rues étroites, privilégiez le covoiturage</li>
+          <li>Merci d’indiquer les besoins spécifiques dans le formulaire</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section id="cadeaux" class="alt-b" aria-labelledby="h-cadeaux">
+    <div class="wrap grid cols-2">
+      <div>
+        <h2 id="h-cadeaux">Cadeaux / Cagnotte</h2>
+        <p>Votre présence est notre plus beau cadeau. Si vous le souhaitez, une cagnotte/liste sera disponible ici :</p>
+        <p><a class="btn" target="_blank" rel="noopener" href="https://gregoirerichar.github.io/">Accéder à la page provisoire</a></p>
+      </div>
+      <aside class="card">
+        <h3>Merci ❤️</h3>
+        <p>Nous partagerons ici les photos et remerciements après le mariage.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section id="faq" class="alt-c" aria-labelledby="h-faq">
+    <div class="wrap">
+      <h2 id="h-faq">FAQ</h2>
+      <details class="card"><summary>Puis‑je venir avec des enfants ?</summary><p>Oui, indiquez‑le dans le formulaire RSVP.</p></details>
+      <details class="card"><summary>Y a‑t‑il un dress code ?</summary><p>Chic confortable, couleurs pastel appréciées.</p></details>
+      <details class="card"><summary>Où se garer ?</summary><p>Parkings à proximité de l’église et au château (merci d’anticiper).</p></details>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <small class="muted">© 2026 — Mariage à Savigny‑lès‑Beaune • Site one‑page statique. Image d’en‑tête : photo aléatoire (remplacez par vos photos).</small>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+  <script>
+    // -------- Compteur --------
+    const targetISO = '2026-06-06T15:00:00+02:00'; // Europe/Paris (CEST en juin)
+    const countdownEl = document.getElementById('countdown');
+    function tick(){
+      const target = new Date(targetISO).getTime();
+      const diff = Math.max(0, target - Date.now());
+      const d = Math.floor(diff/86400000);
+      const h = Math.floor((diff/3600000)%24);
+      const m = Math.floor((diff/60000)%60);
+      const s = Math.floor((diff/1000)%60);
+      countdownEl.textContent = `${d}j ${h}h ${m}m ${s}s`;
+    }
+    tick(); setInterval(tick,1000);
+
+    // -------- Nav : active link on scroll --------
+    const links = [...document.querySelectorAll('nav.site a[href^="#"]')];
+    const mapHrefToLink = new Map(links.map(a=>[a.getAttribute('href'), a]));
+    const obs = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          const id = '#'+e.target.id;
+          links.forEach(a=>a.classList.remove('active'));
+          mapHrefToLink.get(id)?.classList.add('active');
+        }
+      });
+    },{rootMargin:'-40% 0px -59% 0px',threshold:0});
+    document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
+
+    // -------- Leaflet Map --------
+    const whenLeafletReady = ()=>{
+      const lat = 47.062702543328705, lng = 4.819991274853157;
+      const map = L.map('map').setView([lat, lng], 14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);
+      L.marker([lat,lng]).addTo(map).bindPopup('Église de Savigny‑lès‑Beaune');
+    };
+    if (window.L) whenLeafletReady(); else window.addEventListener('load', whenLeafletReady);
+
+    // -------- ICS generator (client-side) --------
+    (function(){
+      const icsBtn = document.getElementById('ics-link');
+      const title = 'Cérémonie de mariage';
+      const start = '20260606T130000Z'; // 15:00 Europe/Paris = 13:00Z
+      const end   = '20260606T220000Z'; // fin estimée 00:00 local
+      const loc   = 'Église & Château de Savigny‑lès‑Beaune';
+      const desc  = 'Cérémonie à 15h (heure locale).';
+      const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Mariage//FR\nBEGIN:VEVENT\nUID:${Date.now()}@mariage\nDTSTAMP:${new Date().toISOString().replace(/[-:]/g,'').split('.')[0]}Z\nDTSTART:${start}\nDTEND:${end}\nSUMMARY:${title}\nLOCATION:${loc}\nDESCRIPTION:${desc}\nEND:VEVENT\nEND:VCALENDAR`;
+      const blob = new Blob([ics],{type:'text/calendar'});
+      const url = URL.createObjectURL(blob);
+      icsBtn.href = url;
+      icsBtn.download = 'mariage-2026-06-06.ics';
+    })();
+  </script>
+  <script>
+    // -------- Parallax hero (fond plus lent que la page) --------
+    (function(){
+      const root = document.documentElement;
+      const hero = document.querySelector('.hero');
+      if(!hero) return;
+      const speed = 0.45; // 0.45 = défilement perceptible
+      function update(){
+        const rect = hero.getBoundingClientRect();
+        const px = -rect.top * speed;
+        root.style.setProperty('--hero-offset', px+'px');
+      }
+      update();
+      window.addEventListener('scroll', update, {passive:true});
+      window.addEventListener('resize', update);
+    })();
+
+    // -------- Rendu des hébergements depuis CSV --------
+    (function(){
+      const url = '/data/lieux_herbergement_possibles.csv'; // à placer dans /data sur ton repo
+      const mount = document.getElementById('lodgings');
+      if(!mount) return;
+      fetch(url).then(r=>r.text()).then(txt=>{
+        // CSV avec séparateur ';' et entête :
+        // NOM;Adresse;Disponibilité;Contact;Nbr de nuit (à partir);Nbr de personnes;Affectation;Lien;Prix /nuit /personne;Prix effectif TOTAL
+        const rows = txt.trim().split(/
+?
+/);
+        const header = rows.shift();
+        const items = rows.map(line=>line.split(';')).filter(c=>c.filter(Boolean).length>1).map(c=>({
+          nom:c[0]?.trim(),
+          adresse:c[1]?.trim(),
+          dispo:c[2]?.trim(),
+          contact:c[3]?.trim(),
+          nuits:c[4]?.trim(),
+          personnes:c[5]?.trim(),
+          affectation:c[6]?.trim(),
+          lien:c[7]?.trim(),
+          prixNuitPers:c[8]?.trim(),
+          prixTotal:c[9]?.trim(),
+        }));
+        const frag = document.createDocumentFragment();
+        items.forEach(it=>{
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <h3>${it.nom||'Hébergement'}</h3>
+            <p>${it.adresse||''}</p>
+            <ul class="clean">
+              ${it.dispo?`<li>📅 Disponibilité : <strong>${it.dispo}</strong></li>`:''}
+              ${it.personnes?`<li>👥 Capacité : ${it.personnes}</li>`:''}
+              ${it.nuits?`<li>🛏️ Nuits (min) : ${it.nuits}</li>`:''}
+              ${it.prixNuitPers?`<li>💶 Prix/nuit/pers : ${it.prixNuitPers}</li>`:''}
+              ${it.prixTotal?`<li>💶 Total indicatif : ${it.prixTotal}</li>`:''}
+              ${it.affectation?`<li>🏷️ Note : ${it.affectation}</li>`:''}
+              ${it.contact?`<li>☎️ Contact : ${it.contact}</li>`:''}
+            </ul>
+            ${it.lien?`<p><a class="btn" target="_blank" rel="noopener" href="${it.lien}">Voir le logement</a></p>`:''}
+          `;
+          frag.appendChild(card);
+        });
+        if(!items.length){
+          const p = document.createElement('p');
+          p.textContent = 'Aucun hébergement listé pour le moment — revenez bientôt !';
+          mount.appendChild(p);
+        } else {
+          mount.appendChild(frag);
+        }
+      }).catch(()=>{
+        const p = document.createElement('p');
+        p.textContent = 'Impossible de charger la liste pour le moment.';
+        mount.appendChild(p);
+      });
+    })();
+  </script>
+</body>
+</html>
